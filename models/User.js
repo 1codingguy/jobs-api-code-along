@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const bcrypt = require('bcryptjs')
 
 const UserSchema = new mongoose.Schema({
   name: {
@@ -14,14 +15,22 @@ const UserSchema = new mongoose.Schema({
       /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
       'Please provide a valid email',
     ],
-    unique: true,
+    unique: true, // so the email provided cannot already be in the DB
   },
   password: {
     type: String,
     required: [true, 'Please provide a password'],
     minLength: 6,
-    maxLength: 12,
   },
 })
 
+UserSchema.pre('save', async function () {
+  // use the function keyword instead of arrow function because of scooping issue
+  const salt = await bcrypt.genSalt(10)
+  // this will point to the document
+  this.password = await bcrypt.hash(this.password, salt)
+  // no need the next() here because of async/await?
+  // next() 
+})
+ 
 module.exports = mongoose.model('User', UserSchema)

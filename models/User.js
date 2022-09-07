@@ -30,7 +30,7 @@ UserSchema.pre('save', async function () {
   // this will point to the document
   this.password = await bcrypt.hash(this.password, salt)
   // no need the next() here because of async/await?
-  // next() 
+  // next()
 })
- 
+
 module.exports = mongoose.model('User', UserSchema)
